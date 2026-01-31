@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Professional Certifications Portfolio</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="container">
+      <header>
+        <h1>🎓 Professional Certifications</h1>
+        <p class="subtitle">Showcasing continuous learning and expertise</p>
+      </header>
+
+      <div class="controls">
+        <button id="toggleFilters" class="toggle-filters-btn">
+          <span id="toggleIcon">▼</span> Filters & Search
+        </button>
+        
+        <div id="filtersSection" class="filters-collapsible">
+          <fieldset class="search-section">
+            <legend>🔍 Search</legend>
+            <div class="input-group">
+              <input
+                type="text"
+                id="search"
+                placeholder="Search by title or enterprise..."
+                class="search-input"
+              />
+            </div>
+          </fieldset>
+
+          <fieldset class="filter-section">
+            <legend>📅 Date Filters</legend>
+            <div class="row">
+              <div class="input-group">
+                <label for="startDate">From:</label>
+                <input type="date" id="startDate" />
+              </div>
+              <div class="input-group">
+                <label for="endDate">To:</label>
+                <input type="date" id="endDate" />
+              </div>
+            </div>
+          </fieldset>
+
+          <fieldset class="sort-section">
+            <legend>🔄 Sort By</legend>
+            <div class="button-group">
+              <button id="sortByName" class="sort-btn" data-active="false">
+                <span class="btn-text">Title</span>
+                <span class="sort-indicator"></span>
+              </button>
+              <button id="sortByDate" class="sort-btn" data-active="true">
+                <span class="btn-text">Date</span>
+                <span class="sort-indicator">▼</span>
+              </button>
+            </div>
+          </fieldset>
+        </div>
+      </div>
+
+      <fieldset class="results-section">
+        <legend>📜 Certifications <span id="count" class="count-badge">0</span></legend>
+        <div id="certifications" class="certifications-grid"></div>
+      </fieldset>
+    </div>
+    <script src="script.js"></script>
+  </body>
+</html>
