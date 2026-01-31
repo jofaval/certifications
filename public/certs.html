@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Certificaciones</title>
+    <link rel="stylesheet" href="certs.css" />
+  </head>
+  <body>
+    <div class="container">
+      <header>
+        <h1>🎓 Certificaciones</h1>
+        <p class="subtitle">Formación y desarrollo profesional</p>
+      </header>
+
+      <div class="controls">
+        <div class="search-bar">
+          <div class="search-wrapper">
+            <span class="search-icon">🔍</span>
+            <input
+              type="text"
+              id="search"
+              placeholder="Buscar certificado, empresa o descripción..."
+              class="search-input"
+              autocomplete="off"
+            />
+            <button id="clearSearch" class="clear-btn" style="display: none;" title="Limpiar búsqueda">✕</button>
+          </div>
+        </div>
+
+        <div class="sort-controls">
+          <span class="sort-label">Ordenar:</span>
+          <div class="button-group">
+            <button id="sortByDate" class="sort-btn active" title="Ordenar por fecha">
+              <span>📅 Fecha</span>
+              <span class="sort-indicator">▼</span>
+            </button>
+            <button id="sortByName" class="sort-btn" title="Ordenar por nombre">
+              <span>🔤 Nombre</span>
+              <span class="sort-indicator"></span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="results-info">
+        <span id="resultCount" class="count">0</span> certificaciones
+      </div>
+
+      <div id="loading" class="loading">
+        <div class="spinner"></div>
+        <p>Cargando certificaciones...</p>
+      </div>
+
+      <div id="certificates" class="certificates-grid"></div>
+    </div>
+    <script src="certs.js"></script>
+  </body>
+</html>
