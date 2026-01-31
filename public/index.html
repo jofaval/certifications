@@ -13,8 +13,21 @@
         <p class="subtitle">Showcasing continuous learning and expertise</p>
       </header>
 
+      <!-- Loading state -->
+      <div id="loadingState" class="loading-state">
+        <div class="spinner"></div>
+        <p>Loading certifications...</p>
+      </div>
+
+      <!-- Active Filters Indicators -->
+      <div id="activeFilters" class="active-filters" style="display: none;">
+        <span class="filter-label">Active filters:</span>
+        <div id="filterTags" class="filter-tags"></div>
+        <button id="clearAllFilters" class="clear-all-btn" title="Clear all filters (Esc)">✕ Clear All</button>
+      </div>
+
       <div class="controls">
-        <button id="toggleFilters" class="toggle-filters-btn">
+        <button id="toggleFilters" class="toggle-filters-btn" title="Show/hide search and filters">
           <span id="toggleIcon">▼</span> Filters & Search
         </button>
         
@@ -25,35 +38,41 @@
               <input
                 type="text"
                 id="search"
-                placeholder="Search by title or enterprise..."
+                placeholder="Type to search by title or organization..."
                 class="search-input"
+                title="Search by certification title or issuing organization"
+                autocomplete="off"
               />
+              <button id="clearSearch" class="clear-input-btn" style="display: none;" title="Clear search">✕</button>
             </div>
           </fieldset>
 
           <fieldset class="filter-section">
-            <legend>📅 Date Filters</legend>
+            <legend>📅 Filter by Issue Date</legend>
             <div class="row">
               <div class="input-group">
-                <label for="startDate">From:</label>
-                <input type="date" id="startDate" />
+                <label for="startDate">From date:</label>
+                <input type="date" id="startDate" title="Show certifications issued after this date" />
               </div>
               <div class="input-group">
-                <label for="endDate">To:</label>
-                <input type="date" id="endDate" />
+                <label for="endDate">To date:</label>
+                <input type="date" id="endDate" title="Show certifications issued before this date" />
               </div>
+            </div>
+            <div id="dateError" class="error-message" style="display: none;">
+              ⚠️ End date cannot be earlier than start date. Please adjust your selection.
             </div>
           </fieldset>
 
           <fieldset class="sort-section">
-            <legend>🔄 Sort By</legend>
+            <legend>🔄 Sort Results</legend>
             <div class="button-group">
-              <button id="sortByName" class="sort-btn" data-active="false">
-                <span class="btn-text">Title</span>
+              <button id="sortByName" class="sort-btn" data-active="false" title="Sort alphabetically by title (A-Z / Z-A)">
+                <span class="btn-text">By Title</span>
                 <span class="sort-indicator"></span>
               </button>
-              <button id="sortByDate" class="sort-btn" data-active="true">
-                <span class="btn-text">Date</span>
+              <button id="sortByDate" class="sort-btn" data-active="true" title="Sort by issue date (newest / oldest)">
+                <span class="btn-text">By Date</span>
                 <span class="sort-indicator">▼</span>
               </button>
             </div>

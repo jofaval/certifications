@@ -9,14 +9,25 @@ document.addEventListener('DOMContentLoaded', () => {
     const toggleFiltersBtn = document.getElementById('toggleFilters');
     const filtersSection = document.getElementById('filtersSection');
     const toggleIcon = document.getElementById('toggleIcon');
+    const loadingState = document.getElementById('loadingState');
+    const activeFiltersSection = document.getElementById('activeFilters');
+    const filterTags = document.getElementById('filterTags');
+    const clearAllFiltersBtn = document.getElementById('clearAllFilters');
+    const clearSearchBtn = document.getElementById('clearSearch');
+    const dateError = document.getElementById('dateError');
 
     let certifications = [];
     let filteredCerts = [];
     let currentSort = { field: 'date', order: 'desc' };
 
+    // Principle 1: Visibility of System Status
     async function fetchCertifications() {
+        loadingState.style.display = 'block';
         try {
             const response = await fetch('certificates.json');
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
             certifications = await response.json();
             
             // Add highlight property for demonstration (top certifications)
@@ -25,13 +36,28 @@ document.addEventListener('DOMContentLoaded', () => {
             if (certifications.length > 11) certifications[11].highlight = true;
             
             filteredCerts = [...certifications];
+            loadingState.style.display = 'none';
             applySortAndRender();
         } catch (error) {
+            // Principle 9: Help Users Recognize, Diagnose, and Recover from Errors
             console.error('Error fetching certifications:', error);
-            certificationsContainer.innerHTML = '<p style="text-align: center; color: var(--text-light);">⚠️ Error loading certifications. Please check the console.</p>';
+            loadingState.innerHTML = `
+                <div style="color: var(--text-dark);">
+                    <p style="font-size: 2rem; margin-bottom: 10px;">⚠️</p>
+                    <p style="font-weight: 600; margin-bottom: 10px;">Unable to load certifications</p>
+                    <p style="color: var(--text-light); font-size: 0.9rem;">The certificates.json file could not be loaded. Please check:</p>
+                    <ul style="text-align: left; display: inline-block; margin-top: 10px; color: var(--text-light); font-size: 0.9rem;">
+                        <li>The file exists in the public folder</li>
+                        <li>Your internet connection</li>
+                        <li>The browser console for more details</li>
+                    </ul>
+                    <button onclick="location.reload()" style="margin-top: 20px; padding: 10px 20px; background: var(--primary-color); color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600;">🔄 Try Again</button>
+                </div>
+            `;
         }
     }
 
+    // Principle 6: Recognition Rather Than Recall
     function renderCertifications(certs) {
         certificationsContainer.innerHTML = '';
         countBadge.textContent = certs.length;
@@ -43,8 +69,15 @@ document.addEventListener('DOMContentLoaded', () => {
             return 0;
         });
 
+        // Principle 2: Match between System and Real World
         if (displayCerts.length === 0) {
-            certificationsContainer.innerHTML = '<p style="text-align: center; color: var(--text-light); grid-column: 1/-1;">🔍 No certifications found matching your criteria.</p>';
+            certificationsContainer.innerHTML = `
+                <div style="text-align: center; color: var(--text-light); grid-column: 1/-1; padding: 40px 20px;">
+                    <p style="font-size: 2rem; margin-bottom: 10px;">🔍</p>
+                    <p style="font-weight: 600; color: var(--text-dark); margin-bottom: 8px;">No certifications found</p>
+                    <p style="font-size: 0.9rem;">Try adjusting your search or filter criteria</p>
+                </div>
+            `;
             return;
         }
 
@@ -97,6 +130,20 @@ document.addEventListener('DOMContentLoaded', () => {
     function applyFilters() {
         filteredCerts = [...certifications];
 
+        // Principle 5: Error Prevention - Date validation
+        if (startDateInput.value && endDateInput.value) {
+            const start = new Date(startDateInput.value);
+            const end = new Date(endDateInput.value);
+            if (start > end) {
+                dateError.style.display = 'block';
+                endDateInput.style.borderColor = '#ef4444';
+                updateActiveFilters();
+                return;
+            }
+        }
+        dateError.style.display = 'none';
+        endDateInput.style.borderColor = '';
+
         const searchTerm = searchInput.value.toLowerCase().trim();
         if (searchTerm) {
             filteredCerts = filteredCerts.filter(cert => 
@@ -119,6 +166,7 @@ document.addEventListener('DOMContentLoaded', () => {
             );
         }
         
+        updateActiveFilters();
         applySortAndRender();
     }
 
@@ -141,6 +189,52 @@ document.addEventListener('DOMContentLoaded', () => {
         });
         
         renderCertifications(sorted);
+    }
+
+    // Principle 1 & 6: System Status + Recognition
+    function updateActiveFilters() {
+        filterTags.innerHTML = '';
+        let hasFilters = false;
+
+        if (searchInput.value.trim()) {
+            hasFilters = true;
+            const tag = document.createElement('span');
+            tag.className = 'filter-tag';
+            tag.innerHTML = `Search: "${searchInput.value}" <span class="remove-tag" data-filter="search">×</span>`;
+            filterTags.appendChild(tag);
+        }
+
+        if (startDateInput.value) {
+            hasFilters = true;
+            const tag = document.createElement('span');
+            tag.className = 'filter-tag';
+            const date = new Date(startDateInput.value).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+            tag.innerHTML = `From: ${date} <span class="remove-tag" data-filter="startDate">×</span>`;
+            filterTags.appendChild(tag);
+        }
+
+        if (endDateInput.value) {
+            hasFilters = true;
+            const tag = document.createElement('span');
+            tag.className = 'filter-tag';
+            const date = new Date(endDateInput.value).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+            tag.innerHTML = `To: ${date} <span class="remove-tag" data-filter="endDate">×</span>`;
+            filterTags.appendChild(tag);
+        }
+
+        activeFiltersSection.style.display = hasFilters ? 'flex' : 'none';
+
+        // Add click handlers for remove buttons
+        filterTags.querySelectorAll('.remove-tag').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const filterType = btn.getAttribute('data-filter');
+                if (filterType === 'search') searchInput.value = '';
+                else if (filterType === 'startDate') startDateInput.value = '';
+                else if (filterType === 'endDate') endDateInput.value = '';
+                applyFilters();
+            });
+        });
     }
 
     function updateSortIndicators() {
@@ -174,18 +268,62 @@ document.addEventListener('DOMContentLoaded', () => {
         applySortAndRender();
     }
 
+    // Principle 3: User Control and Freedom
+    function clearAllFilters() {
+        searchInput.value = '';
+        startDateInput.value = '';
+        endDateInput.value = '';
+        dateError.style.display = 'none';
+        endDateInput.style.borderColor = '';
+        clearSearchBtn.style.display = 'none';
+        applyFilters();
+    }
+
     // Toggle filters section
     toggleFiltersBtn.addEventListener('click', () => {
         filtersSection.classList.toggle('collapsed');
         toggleIcon.classList.toggle('collapsed');
     });
 
+    // Principle 3: User Control and Freedom
+    clearAllFiltersBtn.addEventListener('click', clearAllFilters);
+    
+    clearSearchBtn.addEventListener('click', () => {
+        searchInput.value = '';
+        clearSearchBtn.style.display = 'none';
+        applyFilters();
+    });
+
+    // Show/hide clear search button
+    searchInput.addEventListener('input', () => {
+        clearSearchBtn.style.display = searchInput.value ? 'block' : 'none';
+        applyFilters();
+    });
+
     // Event listeners
-    searchInput.addEventListener('input', applyFilters);
     startDateInput.addEventListener('change', applyFilters);
     endDateInput.addEventListener('change', applyFilters);
     sortByNameButton.addEventListener('click', sortByName);
     sortByDateButton.addEventListener('click', sortByDate);
+
+    // Principle 7: Flexibility and Efficiency of Use - Keyboard shortcuts
+    document.addEventListener('keydown', (e) => {
+        // Escape to clear filters
+        if (e.key === 'Escape') {
+            if (searchInput.value || startDateInput.value || endDateInput.value) {
+                clearAllFilters();
+            }
+        }
+        // Ctrl/Cmd + K to focus search
+        if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+            e.preventDefault();
+            searchInput.focus();
+            if (filtersSection.classList.contains('collapsed')) {
+                filtersSection.classList.remove('collapsed');
+                toggleIcon.classList.remove('collapsed');
+            }
+        }
+    });
 
     // Initialize
     fetchCertifications();
